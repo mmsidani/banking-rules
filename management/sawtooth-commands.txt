@@ -1,0 +1,4 @@
+sudo -u sawtooth sawtooth-validator -vv
+sudo -u sawtooth devmode-engine-rust -vv --connect tcp://localhost:5050
+sudo -u sawtooth sawtooth-rest-api -v
+sudo -u sawtooth settings-tp -v

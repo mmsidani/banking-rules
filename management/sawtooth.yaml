@@ -1,0 +1,116 @@
+# Copyright 2017 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ------------------------------------------------------------------------------
+
+version: "2.3"
+
+services:
+
+  # settings-tp:
+  #   image: hyperledger/sawtooth-settings-tp:1.0
+  #   container_name: sawtooth-settings-tp-default
+  #   volumes:
+  #     - type: bind
+  #       source: /c/Users/mmsid_000/docker/volumes/etc/sawtooth
+  #       target: /etc/sawtooth
+  #     - type: bind
+  #       source: /c/Users/mmsid_000/docker/volumes/root/
+  #       target: /root
+  #     - type: bind
+  #       source: /c/Users/mmsid_000/docker/volumes/var/lib
+  #       target: /var/lib
+  #     - type: bind
+  #       source: /c/Users/mmsid_000/docker/volumes/var/log
+  #       target: /var/log
+  #   depends_on:
+  #     - validator
+  #   entrypoint: settings-tp -vv -C tcp://validator:4004
+
+  validator:
+    image: hyperledger/sawtooth-validator:1.0
+    container_name: sawtooth-validator-default
+    expose:
+      - 4004
+    ports:
+      - "4004:4004"
+    # TODO: hard coded path needs to make installation specific: /d/code/go/banking/sysadmin/volumes
+    volumes:
+      - type: bind
+        source: /c/Users/mmsid_000/docker/volumes/etc/sawtooth
+        target: /etc/sawtooth
+      - type: bind
+        source: /c/Users/mmsid_000/docker/volumes/root/
+        target: /root
+      # - type: bind
+      #   source: /c/Users/mmsid_000/docker/volumes/var/
+      #   target: /var/
+      # - type: bind
+      #   source: /c/Users/mmsid_000/docker/volumes/var/log
+      #   target: /var/log
+    # start the validator with an empty genesis batch
+    # TODO: took these out from entrypoint below
+    #     sawadm keygen && \
+    #     sawtooth keygen my_key && \
+    #     sawset genesis -k /root/.sawtooth/keys/my_key.priv && \
+    #     sawadm genesis config-genesis.batch && \
+    entrypoint: "bash -c \"\
+        sawtooth-validator -vv \
+          --endpoint tcp://validator:8800 \
+          --bind component:tcp://eth0:4004 \
+          --bind network:tcp://eth0:8800 \
+        \""
+
+  # rest-api:
+  #   image: hyperledger/sawtooth-rest-api:1.0
+  #   container_name: sawtooth-rest-api-default
+  #   volumes:
+  #     - type: bind
+  #       source: /c/Users/mmsid_000/docker/volumes/etc/sawtooth
+  #       target: /etc/sawtooth
+  #     - type: bind
+  #       source: /c/Users/mmsid_000/docker/volumes/root/
+  #       target: /root
+  #     - type: bind
+  #       source: /c/Users/mmsid_000/docker/volumes/var/lib
+  #       target: /var/lib
+  #     - type: bind
+  #       source: /c/Users/mmsid_000/docker/volumes/var/log
+  #       target: /var/log
+  #   ports:
+  #     - "8008:8008"
+  #   depends_on:
+  #     - validator
+  #   entrypoint: sawtooth-rest-api -C tcp://validator:4004 --bind rest-api:8008
+  # # TODO removed: sawtooth keygen &&  from entrypoint below
+  # shell:
+  #   image: hyperledger/sawtooth-all:1.0
+  #   container_name: sawtooth-shell-default
+  #   depends_on:
+  #     - rest-api
+  #   volumes:
+  #     - type: bind
+  #       source: /c/Users/mmsid_000/docker/volumes/etc/sawtooth
+  #       target: /etc/sawtooth
+  #     - type: bind
+  #       source: /c/Users/mmsid_000/docker/volumes/root/
+  #       target: /root
+  #     - type: bind
+  #       source: /c/Users/mmsid_000/docker/volumes/var/lib
+  #       target: /var/lib
+  #     - type: bind
+  #       source: /c/Users/mmsid_000/docker/volumes/var/log
+  #       target: /var/log
+  #   entrypoint: "bash -c \"\
+  #       tail -f /dev/null \
+  #       \""
